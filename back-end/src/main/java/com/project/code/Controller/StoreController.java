@@ -16,13 +16,13 @@ import com.project.code.Model.Store;
 import com.project.code.Repo.StoreRepository;
 import com.project.code.Service.OrderService;
 
-@RestController 
-@RequestMapping ("/store")
+@RestController
+@RequestMapping("/store")
 public class StoreController {
-
-    @Autowired 
+		@Autowired
     private StoreRepository storeRepository;
-    @Autowired 
+
+    @Autowired
     private OrderService orderService;
 
     @PostMapping
@@ -32,27 +32,34 @@ public class StoreController {
         map.put("message", "Store added successfully with id "+ savedStore.getId());
         return map;
     }
-    
+
+
     @GetMapping("validate/{storeId}")
-    public boolean validateStore(@PathVariable Long storeId) {
-        Store store = storeRepository.findByid(storeId);
-        if(store!=null) {
+    public boolean validateStore(@PathVariable Long storeId )
+    {
+        Store store=storeRepository.findByid(storeId);
+        if(store!=null)
+        {
             return true;
         }
         return false;
     }
 
-    @PostMapping("/placeOrder")
-    public Map<String, String> placeOrder(@RequestBody PlaceOrderRequestDTO placeOrderRequest) {
-        Map<String, String> map = new HashMap<>();
 
-        try {
-            orderService.saveOrder(placeOrderRequest);
-            map.put("message","Order placed successfully");
-        } catch (Exception e) {
+    @PostMapping("/placeOrder")
+    public Map<String,String> placeOrder(@RequestBody PlaceOrderRequestDTO placeOrderRequest) {
+
+        Map<String,String> map=new HashMap<>();
+        try{
+        orderService.saveOrder(placeOrderRequest);
+        map.put("message","Order placed successfully");
+        }
+        catch(Error e)
+        {
             map.put("Error",""+e);
+
         }
         return map;
     }
-   
+
 }

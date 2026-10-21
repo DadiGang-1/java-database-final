@@ -6,6 +6,12 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,44 +21,33 @@ import com.project.code.Model.Product;
 import com.project.code.Repo.InventoryRepository;
 import com.project.code.Repo.ProductRepository;
 import com.project.code.Service.ServiceClass;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
-
-
-
-@RestController 
+@RestController
 @RequestMapping("/inventory")
 public class InventoryController {
-    @Autowired 
+		@Autowired
     private ProductRepository productRepository;
-    @Autowired 
+    @Autowired
     private InventoryRepository inventoryRepository;
 
-    @Autowired 
+    @Autowired
     private ServiceClass serviceClass;
 
     @PutMapping
     public Map<String, String> updateInventory(@RequestBody CombinedRequest request) {
-        
         Product product = request.getProduct();
         Inventory inventory = request.getInventory();
 
         Map<String, String> map = new HashMap<>();
-        
-        if(!serviceClass.validateProductId(product.getId())) {
-            map.put("message", "Id: " + product.getId() + " not present in database");
+        System.out.println("Stock Level: " + inventory.getStockLevel());
+        if (!serviceClass.ValidateProductId(product.getId())) {
+            map.put("message", "Id " + product.getId() + " not present in database");
             return map;
         }
         productRepository.save(product);
-        map.put("message", "Succeddfully updated product with id: " + product.getId());
-        
-        if(inventory != null) {
+        map.put("message", "Successfully updated product with id: " + product.getId());
+
+        if (inventory != null) {
             try {
                 Inventory result = serviceClass.getInventoryId(inventory);
                 if (result != null) {
@@ -65,20 +60,24 @@ public class InventoryController {
 
             } catch (DataIntegrityViolationException e) {
                 map.put("message", "Error: " + e);
+                System.out.println(e);
                 return map;
             } catch (Exception e) {
                 map.put("message", "Error: " + e);
+                System.out.println(e);
                 return map;
             }
         }
 
         return map;
+
     }
 
     @PostMapping
     public Map<String, String> saveInventory(@RequestBody Inventory inventory) {
+
         Map<String, String> map = new HashMap<>();
-         try {
+        try {
             if (serviceClass.validateInventory(inventory)) {
                 inventoryRepository.save(inventory);
             } else {
@@ -88,28 +87,25 @@ public class InventoryController {
 
         } catch (DataIntegrityViolationException e) {
             map.put("message", "Error: " + e);
+            System.out.println(e);
             return map;
         } catch (Exception e) {
             map.put("message", "Error: " + e);
+            System.out.println(e);
             return map;
         }
         map.put("message", "Product added to inventory successfully");
         return map;
     }
-    
+
     @GetMapping("/{storeid}")
-    public Map<String, Object> getAllProducts(@PathVariable Long storeId) {
+    public Map<String, Object> getAllProducts(@PathVariable Long storeid) {
         Map<String, Object> map = new HashMap<>();
-        List<Product> result = productRepository.findProductsByStoreId(storeId);
+        List<Product> result = productRepository.findProductsByStoreId(storeid);
         map.put("products", result);
         return map;
     }
 
-    @GetMapping("path")
-    public String getMethodName(@RequestParam String param) {
-        return new String();
-    }
-    
     @GetMapping("filter/{category}/{name}/{storeid}")
     public Map<String, Object> getProductName(@PathVariable String category, @PathVariable String name,
             @PathVariable long storeid) {
@@ -140,7 +136,7 @@ public class InventoryController {
     public Map<String, String> removeProduct(@PathVariable Long id) {
         Map<String, String> map = new HashMap<>();
 
-        if (!serviceClass.validateProductId(id)) {
+        if (!serviceClass.ValidateProductId(id)) {
             map.put("message", "Id " + id + " not present in database");
             return map;
         }
@@ -159,4 +155,5 @@ public class InventoryController {
         return false;
 
     }
+
 }

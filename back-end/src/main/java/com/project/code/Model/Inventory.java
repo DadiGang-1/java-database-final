@@ -11,54 +11,72 @@ import jakarta.persistence.ManyToOne;
 
 @Entity
 public class Inventory {
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private Long id;
+	
+	@ManyToOne
+    @JsonBackReference("inventory-product")
+    @JoinColumn(name = "product_id")
+    private Product product;
 
-   @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-   private Long id;
+    @ManyToOne
+    @JoinColumn(name = "store_id")
+    @JsonBackReference("inventory-store")
+    private Store store;
 
-   @ManyToOne()
-   @JsonBackReference("inventory-product")
-   @JoinColumn(name = "product_id", nullable = false)
-   private Product product;
+    private Integer stockLevel;
 
-   @ManyToOne()
-   @JsonBackReference("inventory-store")
-   @JoinColumn(name = "store_id", nullable = false)
-   private Store store;
+    // Getters and Setters
 
-   private Integer stockLevel;
+    public Long getId() {
+        return id;
+    }
 
-   public Inventory() {}
-   public Inventory(Product product, Store store, Integer stockLevel) {
-      this.product = product;
-      this.store = store;
-      this.stockLevel = stockLevel;
-   }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-   public Long getId() {
-       return id;
-   }
-   public Product getProduct() {
-       return product;
-   }
-   public Store getStore() {
-       return store;
-   }
-   public Integer getStockLevel() {
-       return stockLevel;
-   }
+    public Product getProduct() {
+        return product;
+    }
 
-   public void setId(Long id) {
-       this.id = id;
-   }
-   public void setProduct(Product product) {
-       this.product = product;
-   }
-   public void setStore(Store store) {
-       this.store = store;
-   }
-   public void setStockLevel(Integer stockLevel) {
-       this.stockLevel = stockLevel;
-   }
+    public void setProduct(Product product) {
+        this.product = product;
+    }
 
+    public Store getStore() {
+        return store;
+    }
+
+    public void setStore(Store store) {
+        this.store = store;
+    }
+
+    public Integer getStockLevel() {
+        return stockLevel;
+    }
+
+    public void setStockLevel(Integer stockLevel) {
+        this.stockLevel = stockLevel;
+    }
+
+    // Constructors (if necessary)
+    public Inventory() {
+    }
+
+    public Inventory(Product product, Store store, Integer stockLevel) {
+        this.product = product;
+        this.store = store;
+        this.stockLevel = stockLevel;
+    }
+
+    public String toString() {
+        return "Inventory{" +
+                "id=" + id +
+                ", product=" + (product != null ? product.getId() : "null") +
+                ", store=" + (store != null ? store.getId() : "null") +
+                ", stockLevel=" + stockLevel +
+                '}';
+    }
 }
-

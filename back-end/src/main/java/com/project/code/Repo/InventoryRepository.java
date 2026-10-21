@@ -11,15 +11,16 @@ import com.project.code.Model.Inventory;
 
 import jakarta.transaction.Transactional;
 
-@Repository 
-public interface InventoryRepository extends JpaRepository<Inventory, Long>{
-    @Query("SELECT i FROM inventory i WHERE i.product.id = :productId and i.store.id = :storeId")
+@Repository
+public interface InventoryRepository extends JpaRepository<Inventory, Long> {
+	@Query("SELECT i FROM Inventory i WHERE i.product.id = :productId AND i.store.id = :storeId")
     Inventory findByProductIdandStoreId(Long productId, Long storeId);
 
     List<Inventory> findByStore_Id(Long storeId);
 
-    @Modifying 
-    @Transactional 
-    @Query("DELETE FROM inventory i WHERE i.product.id  =:productId")
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Inventory i WHERE i.product.id = :productId")
     void deleteByProductId(Long productId);
+
 }

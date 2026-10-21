@@ -16,10 +16,10 @@ import com.project.code.Model.Review;
 import com.project.code.Repo.CustomerRepository;
 import com.project.code.Repo.ReviewRepository;
 
-@RestController 
+@RestController
 @RequestMapping("/reviews")
 public class ReviewController {
-    @Autowired 
+@Autowired
     ReviewRepository reviewRepository;
 
     @Autowired
@@ -62,5 +62,6 @@ public class ReviewController {
         map.put("reviews",reviewRepository.findAll());
         return map;
     }
-   
+
+
 }

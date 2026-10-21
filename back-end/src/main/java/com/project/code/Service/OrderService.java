@@ -1,11 +1,5 @@
 package com.project.code.Service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.project.code.Model.Customer;
 import com.project.code.Model.Inventory;
 import com.project.code.Model.OrderDetails;
@@ -20,25 +14,29 @@ import com.project.code.Repo.OrderItemRepository;
 import com.project.code.Repo.ProductRepository;
 import com.project.code.Repo.StoreRepository;
 
-@Service 
-public class OrderService {
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-    @Autowired 
+import java.util.List;
+
+@Service
+public class OrderService {
+		@Autowired
     private ProductRepository productRepository;
-    
-    @Autowired 
+
+    @Autowired
     private InventoryRepository inventoryRepository;
-    
-    @Autowired 
+
+    @Autowired
     private CustomerRepository customerRepository;
 
-    @Autowired 
+    @Autowired
     private StoreRepository storeRepository;
 
-    @Autowired 
+    @Autowired
     private OrderDetailsRepository orderDetailsRepository;
 
-    @Autowired 
+    @Autowired
     private OrderItemRepository orderItemRepository;
 
     public void saveOrder(PlaceOrderRequestDTO placeOrderRequest) {
@@ -49,43 +47,45 @@ public class OrderService {
         customer.setEmail(placeOrderRequest.getCustomerEmail());
         customer.setPhone(placeOrderRequest.getCustomerPhone());
 
-        if(existingCustomer == null){
+        if (existingCustomer == null) {
             customer = customerRepository.save(customer);
-        } else {
-            customer = existingCustomer;
+        }
+        else{
+            customer=existingCustomer;
         }
 
+
         // 2. Retrieve the Store
-        Store store = storeRepository.findById(placeOrderRequest.getStoreId()).orElseThrow(() -> new RuntimeException("Store not found"));
+        Store store = storeRepository.findById(placeOrderRequest.getStoreId())
+                .orElseThrow(() -> new RuntimeException("Store not found"));
 
         // 3. Create OrderDetails
         OrderDetails orderDetails = new OrderDetails();
         orderDetails.setCustomer(customer);
         orderDetails.setStore(store);
         orderDetails.setTotalPrice(placeOrderRequest.getTotalPrice());
-        orderDetails.setDate(LocalDateTime.now());
-        orderDetails.setOrderItems(null);
+        orderDetails.setDate(java.time.LocalDateTime.now()); // Use current datetime
 
         orderDetails = orderDetailsRepository.save(orderDetails);
 
         // 4. Create and save OrderItems (products purchased)
         List<PurchaseProductDTO> purchaseProducts = placeOrderRequest.getPurchaseProduct();
-
         for (PurchaseProductDTO productDTO : purchaseProducts) {
             OrderItem orderItem = new OrderItem();
-            
-            Inventory inventory = inventoryRepository.findByProductIdandStoreId(productDTO.getId(), placeOrderRequest.getStoreId());
-            inventory.setStockLevel(inventory.getStockLevel() - productDTO.getQuantity());
+
+            Inventory inventory=inventoryRepository.findByProductIdandStoreId(productDTO.getId(),placeOrderRequest.getStoreId());
+
+            inventory.setStockLevel(inventory.getStockLevel()-productDTO.getQuantity());
             inventoryRepository.save(inventory);
 
-            orderItem.setOrder(orderDetails);
-            orderItem.setProduct(productRepository.findById(productDTO.getId())
-                    .orElseThrow(() -> new RuntimeException("Product not found")));
+            orderItem.setOrder(orderDetails); // Link the order to the order item
+
+            orderItem.setProduct(productRepository.findByid(productDTO.getId()));
+
             orderItem.setQuantity(productDTO.getQuantity());
             orderItem.setPrice(productDTO.getPrice()*productDTO.getQuantity());
-            orderItemRepository.save(orderItem);
-        }
-        
 
-    }   
+            orderItemRepository.save(orderItem); // Save OrderItem
+        }
+    }
 }
